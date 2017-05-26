@@ -147,7 +147,7 @@ function initMap() {
 
     });
 
-    var addMarkerToDb = function(markerThingy){
+    var addMarkerToDb = function(markerThingy, formSelector){
         $.ajax({
             method: "POST",
             url: "/api/marker",
@@ -156,12 +156,7 @@ function initMap() {
             contentType: "application/json"
         }).done(function (data) {
 
-            $('.marker-lat').text('')
-            $('.marker-long').text('');
-            $('#marker-title').val('');
-            $('#marker-description').val('');
-            $('#save-marker').addClass('disabled').attr('disabled', true);
-            $('#save-marker-small').addClass('disabled').attr('disabled', true);
+            resetForm(formSelector);
 
             var markerToDelete = markers.pop();
             markerToDelete.setMap(null);
@@ -181,7 +176,7 @@ function initMap() {
 
         var newMarker = getMarkerFromForm(formSelector);
 
-        addMarkerToDb(newMarker);
+        addMarkerToDb(newMarker, formSelector);
 
     });
 
@@ -192,7 +187,7 @@ function initMap() {
 
         var newMarker = getMarkerFromForm(formSelector);
 
-        addMarkerToDb(newMarker);
+        addMarkerToDb(newMarker, formSelector);
 
     });
 
@@ -240,6 +235,17 @@ function initMap() {
         result.description = form.find('#marker-description').val();
 
         return result;
+
+    }
+
+    var resetForm = function(formSelector){
+
+            formSelector.find('.marker-lat').text('')
+            formSelector.find('.marker-long').text('');
+            formSelector.find('#marker-title').val('');
+            formSelector.find('#marker-description').val('');
+            formSelector.find('#save-marker').addClass('disabled').attr('disabled', true);
+            formSelector.find('#save-marker-small').addClass('disabled').attr('disabled', true);
 
     }
 
