@@ -20,6 +20,10 @@ db.create_all()
 api_manager = APIManager(app, flask_sqlalchemy_db=db)
 api_manager.create_api(Marker, methods=['GET', 'POST', 'PUT', 'DELETE'])
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return app.send_static_file('404.html');
+
 @app.route('/', methods=['GET'])
 def index():
     return app.send_static_file('Index.html')
