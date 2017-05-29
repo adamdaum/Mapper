@@ -1,17 +1,23 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, Text, String
+from sqlalchemy import Column, Integer, Text, String, Numeric, Float
 from flask_restless import APIManager
 
 
 app = Flask(__name__, static_url_path='')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mapper.db'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Surfanddestroy1$@localhost:3306/mapper'
+
 db = SQLAlchemy(app)
 
 class Marker(db.Model):
     id = Column(Integer, primary_key=True)
-    lat = Column(Integer, unique=False)
-    lng = Column(Integer, unique=False)
+    lat = Column(Float, unique=False)
+    lng = Column(Float, unique=False)
     title = Column(Text, unique=False)
     description = Column(String(1000))
 

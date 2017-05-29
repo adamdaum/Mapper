@@ -1,0 +1,3 @@
+entrypoint: python mapper.py
+env: flex
+runtime: python

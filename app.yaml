@@ -1,0 +1,36 @@
+
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+# handlers:
+# - url: /favicon\.ico
+#   static_files: favicon.ico
+#   upload: favicon\.ico
+
+# - url: .*
+#   script: mapper.app
+
+# [START handlers]
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /bootstrap
+  static_dir: bootstrap
+
+- url: /.*
+  script: mapper.app
+# [END handlers]
+
+libraries:
+- name: MySQLdb
+  version: "latest"
+
+env_variables: 
+  SQLALCHEMY_DATABASE_URI: >-
+    mysql://root:Surfanddestroy1$@/mapper?unix_socket=/cloudsql/turing-flow-168304:us-central1:mapperdb
+
+beta_settings:
+  cloud_sql_instances: turing-flow-168304:us-central1:mapperdb
