@@ -18,11 +18,6 @@
     <link rel="stylesheet" href="css/main.css">
     <script src="https://use.fontawesome.com/e7b5a2b9a3.js"></script>
     <script src="js/vendor/modernizr-2.8.3.min.js"></script>
-    <style>
-            #map{
-                height: 350px;
-            }
-        </style>
 </head>
 
 <body>
@@ -61,7 +56,6 @@
         <div class="row">
             <div class="col-sm-4 col-md-3 sidebar">
 
-
                 <form class="form-horizontal" id="marker-form">
                     <fieldset>
                         <legend>Add Marker to Database</legend>
@@ -70,25 +64,62 @@
 
                         <div class="form-group">
                             <div class="col-xs-12">
-                                <input type="text" id="marker-title" class="form-control" placeholder="title" required/>
+                                <input type="text" id="marker-title" class="form-control" placeholder="Title" required/>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="col-xs-12">
-                                <input type="text" id="marker-description" class="form-control" placeholder="description" required/>
+                                <input type="text" id="marker-description" class="form-control" placeholder="Description" required/>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="col-xs-12">
-                                <button class="btn btn-primary disabled" type="button" id="save-marker" disabled>Save Marker</button>
+                                <button class="btn btn-primary disabled" type="button" id="save-marker" disabled>Save Location</button>
                             </div>
 
                         </div>
 
                     </fieldset>
                 </form>
+
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <form class="form-horizontal" id="add-map-form">
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <button type="button" id="show-map-form" class="btn btn-success pull-right btn-sm">+</button>
+                                </div>
+                            </div>
+                            <div class="hideable">
+
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                        <input type="text" class="form-control" id="map-name" placeholder="map name" required />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                        <button type="button" id="save-map" class="btn btn-success btn-sm pull-right">Save</button>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-xs-12">
+                        <select name="map-select" id="map-select" class="form-control">
+        
+                        </select>
+                    </div>
+                </div>
+
+
 
             </div>
 
@@ -101,15 +132,27 @@
                         <strong>CLICK THE MAP TO START ADDING MARKERS! THEN SAVE THEM WITH A TITLE AND DESCRIPTION!</strong>
                     </div>
                     &nbsp;
+                    <form>
+                        <input type="search" id="search-locations" class="form-control" placeholder="Search for locations...">
+                    </form>
+
+
+                    &nbsp;
                     <div id="map">
 
                     </div>
-                    
+
+                    <div id="infowindow-content">
+                        <img src="" width="16" height="16" id="place-icon">
+                        <span id="place-name" class="title"></span><br>
+                        <span id="place-address"></span>
+                    </div>
+
                     <div class="sidebar-small-screen">
 
                         <form class="form-horizontal" id="marker-form-small">
                             <fieldset>
-                                <legend>Add Marker to Database</legend>
+                                <legend>Add Location to Database</legend>
                                 <p><strong>Latitude:</strong> <span class="marker-lat"></span></p>
                                 <p><strong>Longitude:</strong> <span class="marker-long"></span></p>
 
@@ -127,7 +170,7 @@
 
                                 <div class="form-group">
                                     <div class="col-xs-12">
-                                        <button class="btn btn-primary disabled" type="button" id="save-marker-small" disabled>Save Marker</button>
+                                        <button class="btn btn-primary disabled" type="button" id="save-marker-small" disabled>Save Location</button>
                                     </div>
 
                                 </div>
@@ -138,10 +181,10 @@
                     </div>
 
                     &nbsp;
-                    <h4 class="sub-header">Saved Markers</h4>
+                    <h4 class="sub-header">Saved Locations</h4>
 
                     <div class="table-container">
-                        <button type="button" id="delete-marker" class="btn btn-danger disabled" disabled>Delete Marker</button>
+                        <button type="button" id="delete-marker" class="btn btn-danger disabled" disabled>Delete Location</button>
                         <table id="marker-table" class="table table-bordered table-hover">
                         </table>
                     </div>
@@ -162,8 +205,8 @@
 <script src="js/main.js"></script>
 
 <script src="js/mapper.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSbMILtyQo-llSvK6fclWNTyb0_1TmY5E&callback=initMap" async
-    defer>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSbMILtyQo-llSvK6fclWNTyb0_1TmY5E&libraries=places&callback=initMap"
+    async defer>
     </script>
 
 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->

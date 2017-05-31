@@ -1,4 +1,18 @@
-var map, markers, markerForm, saveMarker, deleteMarker, markerTable, markerFormSmall, saveMarkerSmall;
+var map
+, markers
+, markerForm
+, saveMarker
+, deleteMarker
+, markerTable
+, markerFormSmall
+, saveMarkerSmall
+, locationSearchTerm
+, saveMap
+, showMapForm
+, mapName
+, mapSelect
+, addMapForm;
+
 function initMap() {
 
     markers = [];
@@ -8,11 +22,91 @@ function initMap() {
     saveMarkerSmall = $('#save-marker-small');
     deleteMarker = $('#delete-marker');
     markerTable = $('#marker-table');
+    locationSearchTerm = document.getElementById('search-locations');
+    saveMap = $('#save-map');
+    showMapForm = $('#show-map-form');
+    mapSelect = $('#map-select');
+    mapName = $('#map-name');
+    addMapForm = $('#add-map-form');
+
 
     map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 37.773972, lng: -122.431297 },
-        zoom: 13
+        zoom: 12
     });
+
+    var autocomplete = new google.maps.places.Autocomplete(locationSearchTerm);
+    autocomplete.bindTo('bounds', map);
+
+    var infowindow = new google.maps.InfoWindow();
+    var infowindowContent = document.getElementById('infowindow-content');
+    infowindow.setContent(infowindowContent);
+
+    var marker = new google.maps.Marker({
+        map: map,
+        anchorPoint: new google.maps.Point(0, -29)
+    });
+
+    autocomplete.addListener('place_changed', function () {
+
+        infowindow.close();
+        marker.setVisible(false);
+        var place = autocomplete.getPlace();
+        if (!place.geometry) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            window.alert("No details available for input: '" + place.name + "'");
+            return;
+        }
+
+        // If the place has a geometry, then present it on a map.
+        if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+        } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);  // Why 17? Because it looks good.
+        }
+
+        marker.setPosition(place.geometry.location);
+        marker.setVisible(true);
+
+        var address = '';
+        if (place.address_components) {
+            address = [
+                (place.address_components[0] && place.address_components[0].short_name || ''),
+                (place.address_components[1] && place.address_components[1].short_name || ''),
+                (place.address_components[2] && place.address_components[2].short_name || '')
+            ].join(' ');
+        }
+
+        infowindowContent.children['place-icon'].src = place.icon;
+        infowindowContent.children['place-name'].textContent = place.name;
+        infowindowContent.children['place-address'].textContent = address;
+        infowindow.open(map, marker);
+
+        marker.id = guid(); 
+
+        markers.push(marker);
+
+        saveMarker.removeClass('disabled').removeAttr('disabled');
+        saveMarkerSmall.removeClass('disabled').removeAttr('disabled');
+
+        marker.addListener('click', function () {
+
+            deleteMarker(map, marker);
+            saveMarker.addClass('disabled');
+            saveMarkerSmall.addClass('disabled');
+            updateSidePanel("", "");
+
+        });
+
+        var latitude = place.geometry.location.lat().toString();
+        var longitude = place.geometry.location.lng().toString()
+
+        updateSidePanel(latitude, longitude);
+
+    });
+
 
     var setMapMarkers = function () {
 
@@ -93,27 +187,27 @@ function initMap() {
         ],
         select: true,
         dom: 'ftip',
-        initComplete: function(settings, json){
+        initComplete: function (settings, json) {
             var api = this.api();
-            
-            api.on('select', function(e, dt, type, indexes){
 
-                 $('#delete-marker').removeClass('disabled').attr('disabled', false);
+            api.on('select', function (e, dt, type, indexes) {
 
-                var selectedRowCount =  dt.rows({ selected: true }).length;
-                if(selectedRowCount > 0){
-                   
+                $('#delete-marker').removeClass('disabled').attr('disabled', false);
+
+                var selectedRowCount = dt.rows({ selected: true }).length;
+                if (selectedRowCount > 0) {
+
                 }
 
             });
 
-            api.on('deselect', function(e, dt, type, indexes){
-                  $('#delete-marker').addClass('disabled').attr('disabled', true);
+            api.on('deselect', function (e, dt, type, indexes) {
+                $('#delete-marker').addClass('disabled').attr('disabled', true);
             });
         }
     });
 
-    
+
     map.addListener('click', function (args) {
 
         var clickedPosition = args.latLng;
@@ -134,7 +228,7 @@ function initMap() {
 
         saveMarker.removeClass('disabled').removeAttr('disabled');
         saveMarkerSmall.removeClass('disabled').removeAttr('disabled');
-        
+
 
         marker.addListener('click', function () {
 
@@ -147,7 +241,7 @@ function initMap() {
 
     });
 
-    var addMarkerToDb = function(markerThingy, formSelector){
+    var addMarkerToDb = function (markerThingy, formSelector) {
         $.ajax({
             method: "POST",
             url: "/api/marker",
@@ -170,6 +264,18 @@ function initMap() {
     }
 
 
+    showMapForm.on('click', function(){
+
+        $('.hideable').slideDown();
+
+    });
+
+    saveMap.on('click', function(){
+
+        mapSelect.append('<option>'+ mapName.val() + '</option>');
+
+    });
+
     saveMarker.on('click', function () {
 
         var formSelector = markerForm;
@@ -181,7 +287,7 @@ function initMap() {
     });
 
 
-     saveMarkerSmall.on('click', function () {
+    saveMarkerSmall.on('click', function () {
 
         var formSelector = markerFormSmall;
 
@@ -205,7 +311,7 @@ function initMap() {
 
         }).done(function () {
 
-            deleteMarker(map, marker);  
+            deleteMarker(map, marker);
 
             $('#delete-marker').addClass('disabled').attr('disabled', true);
 
@@ -238,14 +344,14 @@ function initMap() {
 
     }
 
-    var resetForm = function(formSelector){
+    var resetForm = function (formSelector) {
 
-            formSelector.find('.marker-lat').text('')
-            formSelector.find('.marker-long').text('');
-            formSelector.find('#marker-title').val('');
-            formSelector.find('#marker-description').val('');
-            formSelector.find('#save-marker').addClass('disabled').attr('disabled', true);
-            formSelector.find('#save-marker-small').addClass('disabled').attr('disabled', true);
+        formSelector.find('.marker-lat').text('')
+        formSelector.find('.marker-long').text('');
+        formSelector.find('#marker-title').val('');
+        formSelector.find('#marker-description').val('');
+        formSelector.find('#save-marker').addClass('disabled').attr('disabled', true);
+        formSelector.find('#save-marker-small').addClass('disabled').attr('disabled', true);
 
     }
 

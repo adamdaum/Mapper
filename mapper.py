@@ -7,10 +7,11 @@ from flask_restless import APIManager
 
 app = Flask(__name__, static_url_path='')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Surfanddestroy1$@localhost:3306/mapper'
+#app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Surfanddestroy1$@localhost:3306/mapper'
+
 
 db = SQLAlchemy(app)
 
