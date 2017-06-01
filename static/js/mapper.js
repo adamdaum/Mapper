@@ -1,17 +1,18 @@
 var map
-, markers
-, markerForm
-, saveMarker
-, deleteMarker
-, markerTable
-, markerFormSmall
-, saveMarkerSmall
-, locationSearchTerm
-, saveMap
-, showMapForm
-, mapName
-, mapSelect
-, addMapForm;
+    , markers
+    , markerForm
+    , saveMarker
+    , deleteMarker
+    , markerTable
+    , markerDataTable
+    , markerFormSmall
+    , saveMarkerSmall
+    , locationSearchTerm
+    , saveMap
+    , showMapForm
+    , mapName
+    , mapSelect
+    , addMapForm;
 
 function initMap() {
 
@@ -28,6 +29,7 @@ function initMap() {
     mapSelect = $('#map-select');
     mapName = $('#map-name');
     addMapForm = $('#add-map-form');
+    markerDataTable = null;
 
 
     map = new google.maps.Map(document.getElementById('map'), {
@@ -42,10 +44,80 @@ function initMap() {
     var infowindowContent = document.getElementById('infowindow-content');
     infowindow.setContent(infowindowContent);
 
+    mapSelect.select2({
+        theme: "bootstrap",
+        ajax: {
+            url: "api/map",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                var filters = [{ "name": "name", "op": "like", "val": "%" + params.term + "%" }];
+                return {
+                    q: JSON.stringify({ "filters": filters }), // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, params) {
+                // parse the results into the format expected by Select2
+                // since we are using custom formatting functions we do not need to
+                // alter the remote JSON data, except to indicate that infinite
+                // scrolling can be used
+                params.page = params.page || 1;
+
+                return {
+                    results: data.objects,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+            cache: true
+        },
+        escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+        minimumInputLength: 1,
+        templateResult: formatResults, // omitted for brevity, see the source of this page
+        templateSelection: formatResultSelection // omitted for brevity, see the source of this page
+
+    }).on('select2:select', function(evt){
+
+        var map_id = $(this).val();
+        setMarkerDataTable(map_id);
+
+    });
+
+    function formatResults(results) {
+        if (results.loading) return results.text;
+
+        var markup = "<div class='select2-result-repository clearfix'>" + results.name + "</div>";
+
+        // var markup = "<div class='select2-result-repository clearfix'>" +
+        //     "<div class='select2-result-repository__avatar'><img src='" + repo.owner.avatar_url + "' /></div>" +
+        //     "<div class='select2-result-repository__meta'>" +
+        //     "<div class='select2-result-repository__title'>" + repo.full_name + "</div>";
+
+        // if (repo.description) {
+        //     markup += "<div class='select2-result-repository__description'>" + repo.description + "</div>";
+        // }
+
+        // markup += "<div class='select2-result-repository__statistics'>" +
+        //     "<div class='select2-result-repository__forks'><i class='fa fa-flash'></i> " + repo.forks_count + " Forks</div>" +
+        //     "<div class='select2-result-repository__stargazers'><i class='fa fa-star'></i> " + repo.stargazers_count + " Stars</div>" +
+        //     "<div class='select2-result-repository__watchers'><i class='fa fa-eye'></i> " + repo.watchers_count + " Watchers</div>" +
+        //     "</div>" +
+        //     "</div></div>";
+
+        return markup;
+    }
+
+    function formatResultSelection(result) {
+        return result.name || result.text;
+    }
+
     var marker = new google.maps.Marker({
         map: map,
         anchorPoint: new google.maps.Point(0, -29)
     });
+
 
     autocomplete.addListener('place_changed', function () {
 
@@ -58,6 +130,8 @@ function initMap() {
             window.alert("No details available for input: '" + place.name + "'");
             return;
         }
+
+        console.log(place);
 
         // If the place has a geometry, then present it on a map.
         if (place.geometry.viewport) {
@@ -84,7 +158,7 @@ function initMap() {
         infowindowContent.children['place-address'].textContent = address;
         infowindow.open(map, marker);
 
-        marker.id = guid(); 
+        marker.id = guid();
 
         markers.push(marker);
 
@@ -164,12 +238,23 @@ function initMap() {
 
     setMapMarkers();
 
-    markerDataTable = markerTable.DataTable({
+    var setMarkerDataTable = function(mapId){
+
+        // if there's a marker datatable, set it to null;
+        if(markerDataTable !== null && markerDataTable !== undefined){
+            markerDataTable.destroy();
+        }
+
+        var filters = [{ "name": "id", "op": "eq", "val": mapId}];
+        var searchFilter = {"q": JSON.stringify({ "filters": filters })};
+
+        markerDataTable = markerTable.DataTable({
         ajax: function (data, callback, settings) {
             $.ajax({
                 method: "GET",
                 url: "/api/marker",
                 dataType: "json",
+                data: searchFilter,
                 contentType: "application/json; charset=UTF-8",
                 success: function (results) {
                     // do something with the results.
@@ -178,9 +263,8 @@ function initMap() {
             });
         },
         columns: [
-            { data: "id", defaultContent: "", title: "id" },
             { data: "title", defaultContent: "N/A", title: "title" },
-            { data: "description", defaultContent: "N/A", title: "description" },
+            { data: "notes", defaultContent: "N/A", title: "notes" },
             { data: "lat", defaultContent: "", title: "latitude" },
             { data: "lng", defaultContent: "", title: "longitude" },
 
@@ -207,6 +291,8 @@ function initMap() {
         }
     });
 
+
+    }
 
     map.addListener('click', function (args) {
 
@@ -264,17 +350,46 @@ function initMap() {
     }
 
 
-    showMapForm.on('click', function(){
+    showMapForm.on('click', function () {
 
-        $('.hideable').slideDown();
+        $('.hideable').slideToggle();
+
+    });
+
+    saveMap.on('click', function () {
+
+        var newMap = getMapFromForm(addMapForm);
+
+        addMap(newMap);
 
     });
 
-    saveMap.on('click', function(){
+    var getMapFromForm = function (formSelector) {
 
-        mapSelect.append('<option>'+ mapName.val() + '</option>');
+        var result = {};
 
-    });
+        result.name = formSelector.find('#map-name').val();
+        result.notes = formSelector.find('#map-notes').val();
+
+        return result;
+
+    }
+
+    var addMap = function (mapObject) {
+        $.ajax({
+            method: "POST",
+            url: "/api/map",
+            data: JSON.stringify(mapObject),
+            dataType: "json",
+            contentType: "application/json"
+        }).done(function (data) {
+
+            mapSelect.append('<option value="' + data.id + '">' + data.name + '</option>');
+            addMapForm.find('input, textarea').val('');
+
+        }).fail(function () { alert('something went wrong.') });
+    }
+
 
     saveMarker.on('click', function () {
 
@@ -335,10 +450,11 @@ function initMap() {
 
         var result = {};
 
+        result.map_id = $('#map-select option:selected').val();
         result.lat = form.find('.marker-lat').text();
         result.lng = form.find('.marker-long').text();
         result.title = form.find('#marker-title').val();
-        result.description = form.find('#marker-description').val();
+        result.notes = form.find('#marker-notes').val();
 
         return result;
 
@@ -349,7 +465,7 @@ function initMap() {
         formSelector.find('.marker-lat').text('')
         formSelector.find('.marker-long').text('');
         formSelector.find('#marker-title').val('');
-        formSelector.find('#marker-description').val('');
+        formSelector.find('#marker-notes').val('');
         formSelector.find('#save-marker').addClass('disabled').attr('disabled', true);
         formSelector.find('#save-marker-small').addClass('disabled').attr('disabled', true);
 

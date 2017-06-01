@@ -116,6 +116,10 @@ textarea {
     display: none;
 }
 
+.btn {
+
+    border-radius: 0px !important;
+}
 
 
 
