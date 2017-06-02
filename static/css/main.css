@@ -121,7 +121,15 @@ textarea {
     border-radius: 0px !important;
 }
 
+.add-new-map-row {
 
+    margin-top: 20px;
+}
+
+.marker-form {
+
+    margin-top: 40px;
+}
 
 
 

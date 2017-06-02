@@ -49,7 +49,7 @@ function initMap() {
         ajax: {
             url: "api/map",
             dataType: 'json',
-            delay: 250,
+            delay: 100,
             data: function (params) {
                 var filters = [{ "name": "name", "op": "like", "val": "%" + params.term + "%" }];
                 return {
@@ -78,10 +78,19 @@ function initMap() {
         templateResult: formatResults, // omitted for brevity, see the source of this page
         templateSelection: formatResultSelection // omitted for brevity, see the source of this page
 
-    }).on('select2:select', function(evt){
+    }).on('select2:select', function (evt) {
 
         var map_id = $(this).val();
-        setMarkerDataTable(map_id);
+        var map_name = $(this).select2('data')[0].name;
+
+        markerDataTable.ajax.url('/api/map/' + map_id);
+        markerDataTable.ajax.reload();
+
+        deleteAllMarkers(map);
+
+        setMapMarkers(map_id);
+
+        $('#map-name-header').text('').text(map_name);
 
     });
 
@@ -89,22 +98,6 @@ function initMap() {
         if (results.loading) return results.text;
 
         var markup = "<div class='select2-result-repository clearfix'>" + results.name + "</div>";
-
-        // var markup = "<div class='select2-result-repository clearfix'>" +
-        //     "<div class='select2-result-repository__avatar'><img src='" + repo.owner.avatar_url + "' /></div>" +
-        //     "<div class='select2-result-repository__meta'>" +
-        //     "<div class='select2-result-repository__title'>" + repo.full_name + "</div>";
-
-        // if (repo.description) {
-        //     markup += "<div class='select2-result-repository__description'>" + repo.description + "</div>";
-        // }
-
-        // markup += "<div class='select2-result-repository__statistics'>" +
-        //     "<div class='select2-result-repository__forks'><i class='fa fa-flash'></i> " + repo.forks_count + " Forks</div>" +
-        //     "<div class='select2-result-repository__stargazers'><i class='fa fa-star'></i> " + repo.stargazers_count + " Stars</div>" +
-        //     "<div class='select2-result-repository__watchers'><i class='fa fa-eye'></i> " + repo.watchers_count + " Watchers</div>" +
-        //     "</div>" +
-        //     "</div></div>";
 
         return markup;
     }
@@ -182,17 +175,17 @@ function initMap() {
     });
 
 
-    var setMapMarkers = function () {
+    var setMapMarkers = function (mapId) {
 
         $.ajax({
             method: "GET",
-            url: '/api/marker',
+            url: '/api/map/' + mapId,
             dataType: "json",
             contentType: "application/json"
 
         }).done(function (data) {
 
-            $.each(data.objects, function (index, item) {
+            $.each(data.markers, function (index, item) {
 
                 var marker = new Marker(item);
 
@@ -236,32 +229,22 @@ function initMap() {
 
     }
 
-    setMapMarkers();
+    setMapMarkers(1);
 
-    var setMarkerDataTable = function(mapId){
 
-        // if there's a marker datatable, set it to null;
-        if(markerDataTable !== null && markerDataTable !== undefined){
-            markerDataTable.destroy();
-        }
+    // var filters = [{ "id": "id", "op": "eq", "val": mapId }]; // this isn't working; fix it later.
+    // var searchFilter = { "q": JSON.stringify({ "filters": filters }) }; // this isn't working; fix it later.
 
-        var filters = [{ "name": "id", "op": "eq", "val": mapId}];
-        var searchFilter = {"q": JSON.stringify({ "filters": filters })};
+    markerDataTable = markerTable.DataTable({
 
-        markerDataTable = markerTable.DataTable({
-        ajax: function (data, callback, settings) {
-            $.ajax({
-                method: "GET",
-                url: "/api/marker",
-                dataType: "json",
-                data: searchFilter,
-                contentType: "application/json; charset=UTF-8",
-                success: function (results) {
-                    // do something with the results.
-                    callback({ draw: data.draw, recordsTotal: results.objects.length, data: results.objects });
-                }
-            });
+        "ajax": {
+            "url": "/api/map/1",
+            "method": "GET",
+            "dataType": "json",
+            "dataSrc": "markers",
+            "contentType": "application/json; charset=UTF-8"
         },
+
         columns: [
             { data: "title", defaultContent: "N/A", title: "title" },
             { data: "notes", defaultContent: "N/A", title: "notes" },
@@ -292,7 +275,7 @@ function initMap() {
     });
 
 
-    }
+
 
     map.addListener('click', function (args) {
 
@@ -483,9 +466,17 @@ function initMap() {
     var deleteMarker = function (map, marker) {
 
         var pos = clearMarker(map, marker);
-
         markers.splice(pos, 1);
 
+    }
+
+    var deleteAllMarkers = function (map) {
+
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setMap(null);
+        }
+
+        markers = [];
     }
 
     var guid = function () {

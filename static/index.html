@@ -58,9 +58,53 @@
         <div class="row">
             <div class="col-sm-4 col-md-3 sidebar">
 
-                <form class="form-horizontal" id="marker-form">
+
+                <div class="row add-new-map-row">
+                    <div class="col-xs-12">
+                        <form class="form-horizontal" id="add-map-form">
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <button type="button" id="show-map-form" class="btn btn-success pull-right btn-sm">Add New Map</button>
+                                </div>
+                            </div>
+                            <div class="hideable">
+
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                        <input type="text" class="form-control" id="map-name" placeholder="Map name" required />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                        <textarea class="form-control" id="map-notes" placeholder="Notes" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                        <button type="button" id="save-map" class="btn btn-success btn-sm pull-right">Save</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row map-select-row">
+                    <div class="form-group">
+                      
+                        <div class="col-xs-12">
+                              <label for="map-select">Select A Map:</label>
+                        <select name="map-select" id="map-select" style="width: 100%">
+                            <option value="1" selected="selected">Default Map</option>
+                        </select>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="form-horizontal marker-form" id="marker-form">
                     <fieldset>
-                        <legend>Add Marker to Database</legend>
+                        <legend><i class="fa fa-map-marker fa-fw"></i>Add Marker to Database</legend>
                         <p><strong>Latitude:</strong> <span class="marker-lat"></span></p>
                         <p><strong>Longitude:</strong> <span class="marker-long"></span></p>
 
@@ -87,48 +131,6 @@
                 </form>
 
 
-                <div class="row">
-                    <div class="col-xs-12">
-                        <form class="form-horizontal" id="add-map-form">
-                            <div class="form-group">
-                                <div class="col-xs-12">
-                                    <button type="button" id="show-map-form" class="btn btn-success pull-right btn-sm">+</button>
-                                </div>
-                            </div>
-                            <div class="hideable">
-
-                                <div class="form-group">
-                                    <div class="col-xs-12">
-                                        <input type="text" class="form-control" id="map-name" placeholder="Map name" required />
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-xs-12">
-                                        <textarea class="form-control" id="map-notes" placeholder="Notes" required></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-xs-12">
-                                        <button type="button" id="save-map" class="btn btn-success btn-sm pull-right">Save</button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="form-group">
-                        <div class="col-xs-12">
-                        <select name="map-select" id="map-select" style="width: 100%">
-                            <option value="1" selected="selected">Default Map</option>
-                        </select>
-                        </div>
-                    </div>
-                </div>
-
-
             </div>
 
             <main>
@@ -139,6 +141,11 @@
                         <button type="button" class="close" data-dismiss="alert">&times;</button>
                         <strong>CLICK THE MAP TO START ADDING MARKERS! THEN SAVE THEM WITH A TITLE AND DESCRIPTION!</strong>
                     </div>
+
+                    <div class="map-functionality-small-screen">
+                    
+                    </div>
+
                     &nbsp;
                     <form>
                         <input type="search" id="search-locations" class="form-control" placeholder="Search for locations...">
@@ -189,7 +196,7 @@
                     </div>
 
                     &nbsp;
-                    <h4 class="sub-header">Saved Locations</h4>
+                    <h4 class="sub-header">Saved Locations For: <span id="map-name-header"></span></h4>
 
                     <div class="table-container">
                         <button type="button" id="delete-marker" class="btn btn-danger disabled" disabled>Delete Location</button>
