@@ -41,6 +41,13 @@ body {
 
 }
 
+.map-functionality-small-screen {
+
+  margin-top: 20px;
+  display: block;
+
+}
+
 
 @media (min-width: 768px) {
   .sidebar {
@@ -60,6 +67,12 @@ body {
   .sidebar-small-screen {
     display: none;
   }
+
+  .map-functionality-small-screen {
+
+  display: none;
+
+}
 
 }
 
