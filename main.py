@@ -39,8 +39,8 @@ class Map(db.Model):
     notes = db.Column(db.Text)
     markers = db.relationship('Marker', backref='map', lazy='dynamic')
 
-db.drop_all()
-db.create_all()
+#db.drop_all()
+#db.create_all()
 
 api_manager = APIManager(app, flask_sqlalchemy_db=db)
 api_manager.create_api(Marker, methods=['GET', 'POST', 'PUT', 'DELETE'])

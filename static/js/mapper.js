@@ -12,7 +12,10 @@ var map
     , showMapForm
     , mapName
     , mapSelect
-    , addMapForm;
+    , addMapForm
+    , showMapFormSmallScreen
+    , addMapFormSmallScreen
+    , mapSelectSmallScreen
 
 function initMap() {
 
@@ -30,6 +33,10 @@ function initMap() {
     mapName = $('#map-name');
     addMapForm = $('#add-map-form');
     markerDataTable = null;
+    showMapFormSmallScreen = $('.map-functionality-small-screen #show-map-form');
+    saveMapSmallScreen = $('.map-functionality-small-screen #save-map');
+    addMapFormSmallScreen = $('.map-functionality-small-screen #add-map-form');
+    mapSelectSmallScreen = $('.map-functionality-small-screen #map-select');
 
 
     map = new google.maps.Map(document.getElementById('map'), {
@@ -44,55 +51,6 @@ function initMap() {
     var infowindowContent = document.getElementById('infowindow-content');
     infowindow.setContent(infowindowContent);
 
-    mapSelect.select2({
-        theme: "bootstrap",
-        ajax: {
-            url: "api/map",
-            dataType: 'json',
-            delay: 100,
-            data: function (params) {
-                var filters = [{ "name": "name", "op": "like", "val": "%" + params.term + "%" }];
-                return {
-                    q: JSON.stringify({ "filters": filters }), // search term
-                    page: params.page
-                };
-            },
-            processResults: function (data, params) {
-                // parse the results into the format expected by Select2
-                // since we are using custom formatting functions we do not need to
-                // alter the remote JSON data, except to indicate that infinite
-                // scrolling can be used
-                params.page = params.page || 1;
-
-                return {
-                    results: data.objects,
-                    pagination: {
-                        more: (params.page * 30) < data.total_count
-                    }
-                };
-            },
-            cache: true
-        },
-        escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-        minimumInputLength: 1,
-        templateResult: formatResults, // omitted for brevity, see the source of this page
-        templateSelection: formatResultSelection // omitted for brevity, see the source of this page
-
-    }).on('select2:select', function (evt) {
-
-        var map_id = $(this).val();
-        var map_name = $(this).select2('data')[0].name;
-
-        markerDataTable.ajax.url('/api/map/' + map_id);
-        markerDataTable.ajax.reload();
-
-        deleteAllMarkers(map);
-
-        setMapMarkers(map_id);
-
-        $('#map-name-header').text('').text(map_name);
-
-    });
 
     function formatResults(results) {
         if (results.loading) return results.text;
@@ -105,6 +63,61 @@ function initMap() {
     function formatResultSelection(result) {
         return result.name || result.text;
     }
+
+    $.ajax({
+        method: "GET",
+        url: '/api/map',
+        dataType: "json",
+        contentType: "application/json"
+
+    }).done(function (data) {
+
+        $.each(data.objects, function (index, item) {
+
+             mapSelect.append('<option value="' + item.id + '">' + item.name + '</option>');
+             mapSelectSmallScreen.append('<option value="' + item.id + '">' + item.name + '</option>');
+
+
+        });
+
+
+    }).fail(function () {
+        alert('something went wrong populating the map select');
+    });
+
+    mapSelect.on('change', function(){
+       
+        var map_id = $(this).find('option:selected').val();
+        var map_name = $(this).find('option:selected').text();
+
+        markerDataTable.ajax.url('/api/map/' + map_id);
+        markerDataTable.ajax.reload();
+
+        deleteAllMarkers(map);
+
+        setMapMarkers(map_id);
+
+        $('#map-name-header').text('');
+        $('#map-name-header').text(map_name);
+
+    });
+
+     mapSelectSmallScreen.on('change', function(){
+       
+        var map_id = $(this).find('option:selected').val();
+        var map_name = $(this).find('option:selected').text();
+
+        markerDataTable.ajax.url('/api/map/' + map_id);
+        markerDataTable.ajax.reload();
+
+        deleteAllMarkers(map);
+
+        setMapMarkers(map_id);
+
+        $('#map-name-header').text('');
+        $('#map-name-header').text(map_name);
+
+    });
 
     var marker = new google.maps.Marker({
         map: map,
@@ -163,14 +176,29 @@ function initMap() {
             deleteMarker(map, marker);
             saveMarker.addClass('disabled');
             saveMarkerSmall.addClass('disabled');
-            updateSidePanel("", "");
+            updateSidePanel(markerForm, "", "");
+            updateSidePanel(markerFormSmall, "", "");
 
         });
 
         var latitude = place.geometry.location.lat().toString();
-        var longitude = place.geometry.location.lng().toString()
+        var longitude = place.geometry.location.lng().toString();
+        var title = place.name;
+        var address = place.address_components[0].short_name + ", " + place.address_components[1].short_name;
+        var city = place.address_components[3].short_name;
+        var state = place.address_components[5].short_name;
+        var zip = place.address_components[place.address_components.length -1].short_name;
+        var notes = '';        
+        if(place.formatted_phone_number){
+            notes += "Phone: " + place.formatted_phone_number;
+        }
 
-        updateSidePanel(latitude, longitude);
+        if(place.reviews){
+            notes += "First Review: " + place.reviews[0].text.substr(0, 20) + " ...";
+        }
+
+        updateSidePanel(markerForm, latitude, longitude, title, address, city, state, zip, notes);
+        updateSidePanel(markerFormSmall, latitude, longitude, title, address, city, state, zip, notes);
 
     });
 
@@ -235,10 +263,12 @@ function initMap() {
     // var filters = [{ "id": "id", "op": "eq", "val": mapId }]; // this isn't working; fix it later.
     // var searchFilter = { "q": JSON.stringify({ "filters": filters }) }; // this isn't working; fix it later.
 
+    var firstMap = $.get('api/map', function(data){if(data){data[0].id}});
+
     markerDataTable = markerTable.DataTable({
 
         "ajax": {
-            "url": "/api/map/1",
+            "url": "api/map/" + firstMap,
             "method": "GET",
             "dataType": "json",
             "dataSrc": "markers",
@@ -335,7 +365,17 @@ function initMap() {
 
     showMapForm.on('click', function () {
 
+        $(this).find('i').toggleClass('fa-plus').toggleClass('fa-minus');
+        $(this).toggleClass('btn-default').toggleClass('btn-primary');
         $('.hideable').slideToggle();
+        
+    });
+
+    showMapFormSmallScreen.on('click', function () {
+
+        $(this).closest('form').find('.hideable').slideToggle();
+        $(this).toggleClass('btn-default, btn-primary');
+        $(this).find('i').toggleClass('fa-plus, fa-minus');
 
     });
 
@@ -344,6 +384,15 @@ function initMap() {
         var newMap = getMapFromForm(addMapForm);
 
         addMap(newMap);
+
+    });
+
+    saveMapSmallScreen.on('click', function () {
+
+        var newMap = getMapFromForm(addMapFormSmallScreen);
+
+        addMap(newMap);
+
 
     });
 
@@ -368,7 +417,22 @@ function initMap() {
         }).done(function (data) {
 
             mapSelect.append('<option value="' + data.id + '">' + data.name + '</option>');
+            mapSelectSmallScreen.append('<option value="' + data.id + '">' + data.name + '</option>');
+            
+            mapSelect.val(data.id).trigger('change');
+            mapSelectSmallScreen.val(data.id).trigger('change');
+
             addMapForm.find('input, textarea').val('');
+            addMapFormSmallScreen.find('input, textarea').val('');
+
+            addMapForm.find('.hideable').slideToggle();
+            addMapFormSmallScreen.find('.hideable').slideToggle();
+
+            addMapForm.find('i').toggleClass('fa-plus').toggleClass('fa-minus');
+            addMapForm.find('button').toggleClass('btn-default').toggleClass('btn-primary');
+
+            addMapFormSmallScreen.find('i').toggleClass('fa-plus').toggleClass('fa-minus');
+            addMapFormSmallScreen.find('button').toggleClass('btn-default').toggleClass('btn-primary');
 
         }).fail(function () { alert('something went wrong.') });
     }
@@ -422,10 +486,18 @@ function initMap() {
     });
 
 
-    var updateSidePanel = function (lat, long) {
+    var updateSidePanel = function (formSelector, lat, long, title, address, city, state, zip, notes) {
 
-        $('.marker-lat').text(lat);
-        $('.marker-long').text(long);
+        var form = formSelector;
+        
+        form.find('.marker-lat').text(lat);
+        form.find('.marker-long').text(long);
+        form.find('#marker-title').val(title);
+        form.find('#marker-address').val(address);
+        form.find('#marker-city').val(city);
+        form.find('#marker-state').val(state);
+        form.find('#marker-zip-code').val(zip);
+        form.find('#marker-notes').val(notes);
 
     }
 

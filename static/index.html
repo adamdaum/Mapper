@@ -42,14 +42,8 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">Dashboard</a></li>
-                    <li><a href="#">Settings</a></li>
-                    <li><a href="#">Profile</a></li>
                     <li><a href="#">Help</a></li>
                 </ul>
-                <form class="navbar-form navbar-right">
-                    <input type="text" class="form-control" placeholder="Search...">
-                </form>
             </div>
         </div>
     </nav>
@@ -64,7 +58,7 @@
                         <form class="form-horizontal" id="add-map-form">
                             <div class="form-group">
                                 <div class="col-xs-12">
-                                    <button type="button" id="show-map-form" class="btn btn-success pull-right btn-sm">Add New Map</button>
+                                    <button type="button" id="show-map-form" class="btn btn-default pull-right btn-sm"><i class="fa fa-plus fa-fw"></i>Create New Map</button>
                                 </div>
                             </div>
                             <div class="hideable">
@@ -92,127 +86,219 @@
 
                 <div class="row map-select-row">
                     <div class="form-group">
-                      
+
                         <div class="col-xs-12">
-                              <label for="map-select">Select A Map:</label>
-                        <select name="map-select" id="map-select" style="width: 100%">
-                            <option value="1" selected="selected">Default Map</option>
-                        </select>
-                        </div>
-                    </div>
-                </div>
+                            <select name="map-select" id="map-select" style="width: 100%">
+<option value="" selected disabled>Select a Map</option>
+</select>
+</div>
+</div>
+</div>
 
-                <form class="form-horizontal marker-form" id="marker-form">
-                    <fieldset>
-                        <legend><i class="fa fa-map-marker fa-fw"></i>Add Marker to Database</legend>
-                        <p><strong>Latitude:</strong> <span class="marker-lat"></span></p>
-                        <p><strong>Longitude:</strong> <span class="marker-long"></span></p>
+<form class="form-horizontal marker-form" id="marker-form">
+    <fieldset>
+        <legend><i class="fa fa-map-marker fa-fw"></i>Add Location to Database</legend>
+        <p><strong>Latitude:</strong> <span class="marker-lat"></span></p>
+        <p><strong>Longitude:</strong> <span class="marker-long"></span></p>
 
-                        <div class="form-group">
-                            <div class="col-xs-12">
-                                <input type="text" id="marker-title" class="form-control" placeholder="Title" required/>
-                            </div>
-                        </div>
+        <div class="form-group">
+            <div class="col-xs-12">
+                <input type="text" id="marker-title" class="form-control" placeholder="Title" required/>
+            </div>
+        </div>
 
-                        <div class="form-group">
-                            <div class="col-xs-12">
-                                <textarea id="marker-notes" class="form-control" placeholder="Notes" required></textarea>
-                            </div>
-                        </div>
+        <div class="form-group">
+            <div class="col-xs-12">
+                <input type="text" id="marker-address" class="form-control" placeholder="Address" required/>
+            </div>
+        </div>
 
-                        <div class="form-group">
-                            <div class="col-xs-12">
-                                <button class="btn btn-primary disabled" type="button" id="save-marker" disabled>Save Location</button>
-                            </div>
+        <div class="form-group">
+            <div class="col-xs-12">
+                <input type="text" id="marker-city" class="form-control" placeholder="City" required/>
+            </div>
+        </div>
 
-                        </div>
+        <div class="form-group">
+            <div class="col-xs-12">
+                <input type="text" id="marker-state" class="form-control" placeholder="State" required/>
+            </div>
+        </div>
 
-                    </fieldset>
-                </form>
+        <div class="form-group">
+            <div class="col-xs-12">
+                <input type="text" id="marker-zip-code" class="form-control" placeholder="Zip" required/>
+            </div>
+        </div>
 
 
+        <div class="form-group">
+            <div class="col-xs-12">
+                <textarea id="marker-notes" class="form-control" placeholder="Notes" required></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-xs-12">
+                <button class="btn btn-primary disabled" type="button" id="save-marker" disabled>Save Location</button>
             </div>
 
-            <main>
-                <div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 main">
-                    <!--<h2 class="page-header">Map</h2>-->
+        </div>
 
-                    <div class="alert alert-dismissible alert-info">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <strong>CLICK THE MAP TO START ADDING MARKERS! THEN SAVE THEM WITH A TITLE AND DESCRIPTION!</strong>
-                    </div>
+    </fieldset>
+</form>
 
-                    <div class="map-functionality-small-screen">
-                        This is where the select will go on a small screen
-                    </div>
 
-                    &nbsp;
-                    <form>
-                        <input type="search" id="search-locations" class="form-control" placeholder="Search for locations...">
+</div>
+
+<main>
+    <div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 main">
+        <!--<h2 class="page-header">Map</h2>-->
+
+        <div class="alert alert-dismissible alert-info">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>CLICK THE MAP TO START ADDING MARKERS! THEN SAVE THEM WITH A TITLE AND DESCRIPTION!</strong>
+        </div>
+
+        <div class="map-functionality-small-screen">
+
+            <div class="row add-new-map-row">
+                <div class="col-xs-12">
+                    <form class="form-horizontal" id="add-map-form">
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                <button type="button" id="show-map-form" class="btn btn-default pull-right btn-sm"><i class="fa fa-plus fa-fw"></i>Create New Map</button>
+                            </div>
+                        </div>
+                        <div class="hideable">
+
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <input type="text" class="form-control" id="map-name" placeholder="Map name" required />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <textarea class="form-control" id="map-notes" placeholder="Notes" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <button type="button" id="save-map" class="btn btn-success btn-sm pull-right">Save</button>
+                                </div>
+                            </div>
+
+                        </div>
                     </form>
-
-
-                    &nbsp;
-                    <div id="map">
-
-                    </div>
-
-                    <div id="infowindow-content">
-                        <img src="" width="16" height="16" id="place-icon">
-                        <span id="place-name" class="title"></span><br>
-                        <span id="place-address"></span>
-                    </div>
-
-                    <div class="sidebar-small-screen">
-
-                        <form class="form-horizontal" id="marker-form-small">
-                            <fieldset>
-                                <legend>Add Location to Database</legend>
-                                <p><strong>Latitude:</strong> <span class="marker-lat"></span></p>
-                                <p><strong>Longitude:</strong> <span class="marker-long"></span></p>
-
-                                <div class="form-group">
-                                    <div class="col-xs-12">
-                                        <input type="text" id="marker-title" class="form-control" placeholder="title" required/>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="col-xs-12">
-                                        <textarea id="marker-notes" class="form-control" placeholder="Notes" required></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="col-xs-12">
-                                        <button class="btn btn-primary disabled" type="button" id="save-marker-small" disabled>Save Location</button>
-                                    </div>
-
-                                </div>
-
-                            </fieldset>
-                        </form>
-
-                    </div>
-
-                    &nbsp;
-                    <h4 class="sub-header">Saved Locations For: <span id="map-name-header"></span></h4>
-
-                    <div class="table-container">
-                        <button type="button" id="delete-marker" class="btn btn-danger disabled" disabled>Delete Location</button>
-                        <table id="marker-table" class="table table-bordered table-hover">
-                        </table>
-                    </div>
-
                 </div>
-            </main>
+            </div>
 
+            <div class="row map-select-row">
+                <div class="form-group">
+
+                    <div class="col-xs-12">
+                        <select name="map-select" id="map-select" class="form-control" aria-placeholder="Select a Map">
+                            <option value="" disabled selected>Select a Map</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
         </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
+        &nbsp;
+        <form>
+            <input type="search" id="search-locations" class="form-control" placeholder="Search for locations...">
+        </form>
+
+
+        &nbsp;
+        <div id="map">
+
+        </div>
+
+        <div id="infowindow-content">
+            <img src="" width="16" height="16" id="place-icon">
+            <span id="place-name" class="title"></span><br>
+            <span id="place-address"></span>
+        </div>
+
+        <div class="sidebar-small-screen">
+
+            <form class="form-horizontal" id="marker-form-small">
+                <fieldset>
+                    <legend><i class="fa fa-map-marker fa-fw"></i>Add Location to Database</legend>
+                    <p><strong>Latitude:</strong> <span class="marker-lat"></span></p>
+                    <p><strong>Longitude:</strong> <span class="marker-long"></span></p>
+
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input type="text" id="marker-title" class="form-control" placeholder="Title" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input type="text" id="marker-address" class="form-control" placeholder="Address" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input type="text" id="marker-city" class="form-control" placeholder="City" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input type="text" id="marker-state" class="form-control" placeholder="State" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input type="text" id="marker-zip-code" class="form-control" placeholder="Zip" required/>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <textarea id="marker-notes" class="form-control" placeholder="Notes" required></textarea>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <button class="btn btn-primary disabled" type="button" id="save-marker-small" disabled>Save Location</button>
+                        </div>
+
+                    </div>
+
+                </fieldset>
+            </form>
+
+        </div>
+
+        &nbsp;
+        <h4 class="sub-header">Saved Locations For: <span id="map-name-header"></span></h4>
+
+        <div class="table-container">
+            <button type="button" id="delete-marker" class="btn btn-danger disabled" disabled>Delete Location</button>
+            <table id="marker-table" class="table table-bordered table-hover">
+            </table>
+        </div>
+
+    </div>
+</main>
+
+
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
     crossorigin="anonymous"></script>
 <script src="js/plugins.js"></script>
