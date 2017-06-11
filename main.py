@@ -6,8 +6,8 @@ from flask_restless import APIManager
 
 app = Flask(__name__, static_url_path='')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Surfanddestroy1$@localhost:3306/mapper'
-#app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Surfanddestroy1$@localhost:3306/mapper'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -19,15 +19,24 @@ class Marker(db.Model):
     lat = db.Column(db.Float, unique=False)
     lng = db.Column(db.Float, unique=False)
     title = db.Column(db.String(1000), unique=False)
+    address = db.Column(db.String(1000), unique=False)
+    city = db.Column(db.String(1000), unique=False)
+    state = db.Column(db.String(1000), unique=False)
+    zipcode = db.Column(db.Integer, unique=False)
     notes = db.Column(db.Text)
     map_id = db.Column(db.Integer, db.ForeignKey('map.id'), nullable=False)
 
-    def __init__(self, lat, lng, title, notes, map_id):
+    def __init__(self, lat, lng, title, address, city, state, zipcode, notes, map_id):
         self.lat = lat
         self.lng = lng
         self.title = title
+        self.address = address
+        self.city = city
+        self.state = state
+        self.zipcode = zipcode
         self.notes = notes
         self.map_id = map_id
+
 
     def __repr__(self):
         return '<marker %r>' % self.title

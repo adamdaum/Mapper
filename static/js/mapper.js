@@ -73,9 +73,11 @@ function initMap() {
     }).done(function (data) {
 
         $.each(data.objects, function (index, item) {
+            if (item.id !== 1) { // first one is our placeholder to init the datatable
+                mapSelect.append('<option value="' + item.id + '">' + item.name + '</option>');
+                mapSelectSmallScreen.append('<option value="' + item.id + '">' + item.name + '</option>');
+            }
 
-             mapSelect.append('<option value="' + item.id + '">' + item.name + '</option>');
-             mapSelectSmallScreen.append('<option value="' + item.id + '">' + item.name + '</option>');
 
 
         });
@@ -85,8 +87,8 @@ function initMap() {
         alert('something went wrong populating the map select');
     });
 
-    mapSelect.on('change', function(){
-       
+    mapSelect.on('change', function () {
+
         var map_id = $(this).find('option:selected').val();
         var map_name = $(this).find('option:selected').text();
 
@@ -102,8 +104,8 @@ function initMap() {
 
     });
 
-     mapSelectSmallScreen.on('change', function(){
-       
+    mapSelectSmallScreen.on('change', function () {
+
         var map_id = $(this).find('option:selected').val();
         var map_name = $(this).find('option:selected').text();
 
@@ -187,13 +189,13 @@ function initMap() {
         var address = place.address_components[0].short_name + ", " + place.address_components[1].short_name;
         var city = place.address_components[3].short_name;
         var state = place.address_components[5].short_name;
-        var zip = place.address_components[place.address_components.length -1].short_name;
-        var notes = '';        
-        if(place.formatted_phone_number){
+        var zip = place.address_components[place.address_components.length - 1].types[0] === 'postal_code_suffix' ? place.address_components[place.address_components.length - 2].short_name : place.address_components[place.address_components.length - 1].short_name;
+        var notes = '';
+        if (place.formatted_phone_number) {
             notes += "Phone: " + place.formatted_phone_number;
         }
 
-        if(place.reviews){
+        if (place.reviews) {
             notes += "First Review: " + place.reviews[0].text.substr(0, 20) + " ...";
         }
 
@@ -263,12 +265,12 @@ function initMap() {
     // var filters = [{ "id": "id", "op": "eq", "val": mapId }]; // this isn't working; fix it later.
     // var searchFilter = { "q": JSON.stringify({ "filters": filters }) }; // this isn't working; fix it later.
 
-    var firstMap = $.get('api/map', function(data){if(data){data[0].id}});
+    //var firstMap = $.get('api/map', function(data){if(data){data[0].id}});
 
     markerDataTable = markerTable.DataTable({
 
         "ajax": {
-            "url": "api/map/" + firstMap,
+            "url": "api/map/" + 1,
             "method": "GET",
             "dataType": "json",
             "dataSrc": "markers",
@@ -276,10 +278,10 @@ function initMap() {
         },
 
         columns: [
-            { data: "title", defaultContent: "N/A", title: "title" },
-            { data: "notes", defaultContent: "N/A", title: "notes" },
-            { data: "lat", defaultContent: "", title: "latitude" },
-            { data: "lng", defaultContent: "", title: "longitude" },
+            { data: "title", defaultContent: "N/A", title: "Title" },
+            { data: "notes", defaultContent: "N/A", title: "Notes" },
+            { data: "address", defaultContent: "N/A", title: "Address" },
+            { data: "zipcode", defaultContent: "N/A", title: "Zip Code" },
 
         ],
         select: true,
@@ -323,7 +325,8 @@ function initMap() {
 
         markers.push(marker);
 
-        updateSidePanel(clickedPosition.lat().toString(), clickedPosition.lng().toString());
+        updateSidePanel(markerFormSmall, clickedPosition.lat().toString(), clickedPosition.lng().toString());
+        updateSidePanel(markerForm, clickedPosition.lat().toString(), clickedPosition.lng().toString());
 
         saveMarker.removeClass('disabled').removeAttr('disabled');
         saveMarkerSmall.removeClass('disabled').removeAttr('disabled');
@@ -368,7 +371,7 @@ function initMap() {
         $(this).find('i').toggleClass('fa-plus').toggleClass('fa-minus');
         $(this).toggleClass('btn-default').toggleClass('btn-primary');
         $('.hideable').slideToggle();
-        
+
     });
 
     showMapFormSmallScreen.on('click', function () {
@@ -418,7 +421,7 @@ function initMap() {
 
             mapSelect.append('<option value="' + data.id + '">' + data.name + '</option>');
             mapSelectSmallScreen.append('<option value="' + data.id + '">' + data.name + '</option>');
-            
+
             mapSelect.val(data.id).trigger('change');
             mapSelectSmallScreen.val(data.id).trigger('change');
 
@@ -489,7 +492,7 @@ function initMap() {
     var updateSidePanel = function (formSelector, lat, long, title, address, city, state, zip, notes) {
 
         var form = formSelector;
-        
+
         form.find('.marker-lat').text(lat);
         form.find('.marker-long').text(long);
         form.find('#marker-title').val(title);
@@ -508,6 +511,10 @@ function initMap() {
         result.map_id = $('#map-select option:selected').val();
         result.lat = form.find('.marker-lat').text();
         result.lng = form.find('.marker-long').text();
+        result.address = form.find('#marker-address').val();
+        result.city = form.find('#marker-city').val();
+        result.state = form.find('#marker-state').val();
+        result.zipcode = form.find('#marker-zip-code').val() === ''? null: form.find('#marker-zip-code').val();
         result.title = form.find('#marker-title').val();
         result.notes = form.find('#marker-notes').val();
 
@@ -519,6 +526,10 @@ function initMap() {
 
         formSelector.find('.marker-lat').text('')
         formSelector.find('.marker-long').text('');
+        formSelector.find('#marker-address').val('');
+        formSelector.find('#marker-city').val('');
+        formSelector.find('#marker-state').val('');
+        formSelector.find('#marker-zip-code').val('');
         formSelector.find('#marker-title').val('');
         formSelector.find('#marker-notes').val('');
         formSelector.find('#save-marker').addClass('disabled').attr('disabled', true);
